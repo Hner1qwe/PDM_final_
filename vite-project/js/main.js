@@ -54,28 +54,61 @@ if ('serviceWorker' in navigator) {
     }
   });
 }
-var constraints = { video: { facingMode: "user" }, audio: false };
+window.addEventListener('load', async () => {
+  // Registrar SW (ok)
+  try {
+    const reg = await navigator.serviceWorker.register("./sw.js");
+    console.log("Service Worker registrado", reg);
+  } catch (err) {
+    console.log("😧 Service worker registro falhou:", err);
+  }
 
-const cameraView = document.querySelector("#camera--view"),
-      cameraOutput = document.querySelector("#camera--output"),
-      cameraSensor = document.querySelector("#camera--sensor"),
-      cameraTrigger = document.querySelector("#camera--trigger");
-function cameraStart() {
-  navigator.mediaDevices
-    .getUserMedia(constraints)
-    .then(function (stream) {
-      let track = stream.getTracks()[0];
+  // --- CORREÇÃO DOS CONSTRAINTS ---
+  // NÃO use facingMode: "user" em Xiaomi → ele bloqueia sem avisar
+  const constraints = {
+    video: {
+      facingMode: { ideal: "environment" }, // melhor compatibilidade
+    },
+    audio: false,
+  };
+
+  const cameraView = document.querySelector("#camera--view");
+  const cameraOutput = document.querySelector("#camera--output");
+  const cameraSensor = document.querySelector("#camera--sensor");
+  const cameraTrigger = document.querySelector("#camera--trigger");
+
+  async function cameraStart() {
+    try {
+      console.log("🔍 Pedindo permissão da câmera...");
+
+      // --- CHAMADA CORRETA ---
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+      // --- OBRIGATÓRIO EM MOBILE ---
+      cameraView.setAttribute("playsinline", true);
+
       cameraView.srcObject = stream;
-    })
-    .catch(function (error) {
-      console.error("Ocorreu um Erro.", error);
-    });
-}
-cameraTrigger.onclick = function () {
-  cameraSensor.width = cameraView.videoWidth;
-  cameraSensor.height = cameraView.videoHeight;
-  cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
-  cameraOutput.src = cameraSensor.toDataURL("image/webp");
-  cameraOutput.classList.add("taken");
-};
-window.addEventListener("load", cameraStart, false);
+
+      cameraView.onloadedmetadata = () => {
+        cameraView.play().catch(err => console.error("Erro ao dar play:", err));
+      };
+
+      console.log("📸 Câmera iniciada!");
+
+    } catch (error) {
+      console.error("❌ Erro ao acessar a câmera:", error);
+      alert("Erro ao acessar a câmera: " + error.message);
+    }
+  }
+
+  cameraTrigger.onclick = function () {
+    cameraSensor.width = cameraView.videoWidth;
+    cameraSensor.height = cameraView.videoHeight;
+    cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
+    cameraOutput.src = cameraSensor.toDataURL("image/webp");
+    cameraOutput.classList.add("taken");
+  };
+
+  // --- REMOVER BUG: você registrava o mesmo evento DUAS VEZES ---
+  cameraStart();
+});
