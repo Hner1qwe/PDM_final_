@@ -1,4 +1,3 @@
-
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
@@ -9,7 +8,6 @@ if ("serviceWorker" in navigator) {
     }
   });
 }
-
 
 window.addEventListener("DOMContentLoaded", () => {
   const constraints = {

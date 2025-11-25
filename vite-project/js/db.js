@@ -1,6 +1,5 @@
 import { openDB } from "https://cdn.jsdelivr.net/npm/idb@7/+esm";
 
-
 let db;
 
 async function createDB() {
