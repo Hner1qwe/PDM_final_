@@ -1,85 +1,71 @@
 
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", async () => {
+const cameraView = document.querySelector("#camera--view");
+const cameraOutput = document.querySelector("#camera--output");
+const cameraSensor = document.querySelector("#camera--sensor");
+const cameraTrigger = document.querySelector("#camera--trigger");
+
+
+const formArea = document.querySelector("#form-area");
+const inputAlbum = document.querySelector("#input-album");
+const inputArtista = document.querySelector("#input-artista");
+const saveInfo = document.querySelector("#save-info");
+
+
+const lista = document.querySelector("#lista");
+
+
+async function cameraStart() {
     try {
-      await navigator.serviceWorker.register("/sw.js", { type: "module" });
-      console.log("Service worker registrado!");
-    } catch (err) {
-      console.error("Falha ao registrar service worker:", err);
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: "environment" },
+            audio: false
+        });
+
+        cameraView.srcObject = stream;
+
+        cameraView.onloadedmetadata = () => {
+            cameraView.play();
+        };
+
+    } catch (error) {
+        alert("Erro ao acessar a câmera: " + error.message);
+        console.error(error);
     }
-  });
 }
 
+cameraStart();
 
-window.addEventListener("DOMContentLoaded", () => {
-  const constraints = {
-    video: { facingMode: { ideal: "environment" } },
-    audio: false,
-  };
 
-  const cameraView = document.querySelector("#camera-view");
-  const cameraSensor = document.querySelector("#camera-sensor");
-  const cameraTrigger = document.querySelector("#cameraTrigger");
-
-  const albumInput = document.querySelector("#album");
-  const artistaInput = document.querySelector("#artista");
-  const listaRegistros = document.querySelector("#lista-registros");
-
-  async function cameraStart() {
-    try {
-      console.log("Pedindo permissão da câmera...");
-
-      const stream = await navigator.mediaDevices.getUserMedia(constraints);
-
-      cameraView.setAttribute("playsinline", "");
-      cameraView.srcObject = stream;
-
-      cameraView.onloadedmetadata = () => {
-        cameraView.play().catch(err => console.error("Erro ao dar play:", err));
-      };
-
-      console.log("Câmera iniciada!");
-    } catch (error) {
-      console.error("Erro ao acessar a câmera:", error);
-      alert("Erro ao acessar a câmera: " + error.message);
-    }
-  }
-
-  cameraStart();
-
-  
-  cameraTrigger.addEventListener("click", () => {
-    const album = albumInput.value.trim();
-    const artista = artistaInput.value.trim();
-
-    if (!album || !artista) {
-      alert("Preencha o nome do álbum e do artista!");
-      return;
-    }
-
+cameraTrigger.onclick = () => {
     cameraSensor.width = cameraView.videoWidth;
     cameraSensor.height = cameraView.videoHeight;
 
-    const ctx = cameraSensor.getContext("2d");
-    ctx.drawImage(cameraView, 0, 0);
+    cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
 
-    const foto = cameraSensor.toDataURL("image/webp");
+    cameraOutput.src = cameraSensor.toDataURL("image/webp");
+    cameraOutput.style.display = "block";
 
-    adicionarRegistro(album, artista, foto);
+    
+    formArea.style.display = "block";
+};
 
-    albumInput.value = "";
-    artistaInput.value = "";
-  });
+
+saveInfo.onclick = () => {
+    const album = inputAlbum.value.trim();
+    const artista = inputArtista.value.trim();
+
+    if (album === "" || artista === "") {
+        alert("Preencha todos os campos!");
+        return;
+    }
+
+    const li = document.createElement("li");
+    li.innerHTML = `<strong>${album}</strong> — ${artista}`;
+    lista.appendChild(li);
 
   
-  function adicionarRegistro(album, artista, foto) {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>Álbum:</strong> ${album}<br>
-      <strong>Artista:</strong> ${artista}<br>
-      <img src="${foto}" width="150">
-      <hr>
-    `;
-    listaRegistros.appendChild(li);
-  }
-});
+    inputAlbum.value = "";
+    inputArtista.value = "";
+
+    alert("Registro salvo!");
+};
