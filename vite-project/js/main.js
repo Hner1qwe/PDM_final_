@@ -55,7 +55,7 @@ if ('serviceWorker' in navigator) {
   });
 }
 window.addEventListener('load', async () => {
-  // Registrar SW (ok)
+  
   try {
     const reg = await navigator.serviceWorker.register("./sw.js");
     console.log("Service Worker registrado", reg);
@@ -63,11 +63,10 @@ window.addEventListener('load', async () => {
     console.log("😧 Service worker registro falhou:", err);
   }
 
-  // --- CORREÇÃO DOS CONSTRAINTS ---
-  // NÃO use facingMode: "user" em Xiaomi → ele bloqueia sem avisar
+ 
   const constraints = {
     video: {
-      facingMode: { ideal: "environment" }, // melhor compatibilidade
+      facingMode: { ideal: "environment" }, 
     },
     audio: false,
   };
@@ -81,10 +80,9 @@ window.addEventListener('load', async () => {
     try {
       console.log("🔍 Pedindo permissão da câmera...");
 
-      // --- CHAMADA CORRETA ---
       const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
-      // --- OBRIGATÓRIO EM MOBILE ---
+      
       cameraView.setAttribute("playsinline", true);
 
       cameraView.srcObject = stream;
@@ -100,15 +98,6 @@ window.addEventListener('load', async () => {
       alert("Erro ao acessar a câmera: " + error.message);
     }
   }
-
-  cameraTrigger.onclick = function () {
-    cameraSensor.width = cameraView.videoWidth;
-    cameraSensor.height = cameraView.videoHeight;
-    cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
-    cameraOutput.src = cameraSensor.toDataURL("image/webp");
-    cameraOutput.classList.add("taken");
-  };
-
-  // --- REMOVER BUG: você registrava o mesmo evento DUAS VEZES ---
+  
   cameraStart();
 });
