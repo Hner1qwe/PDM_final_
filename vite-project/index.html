@@ -1,41 +1,35 @@
 <!DOCTYPE html>
 <html lang="pt">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Registro de Álbuns</title>
 
     <link rel="stylesheet" href="./css/style.css">
 </head>
 
 <body>
-
-    
     <main id="camera">
-        <video id="camera--view" autoplay playsinline></video>
-        <canvas id="camera--sensor"></canvas>
-        <img id="camera--output" alt="Foto" />
+        
+        
+        <input type="text" id="album" placeholder="Nome do Álbum">
+        <input type="text" id="artista" placeholder="Nome do Artista">
 
-        <button id="camera--trigger">Fotografar</button>
+        
+        <video id="camera-view" autoplay playsinline></video>
+
+       
+        <canvas id="camera-sensor" hidden></canvas>
+
+     
+        <button id="cameraTrigger">Tirar Foto</button>
+
+        
+        <h2>Registros:</h2>
+        <ul id="lista-registros"></ul>
+
     </main>
 
-    
-    <section id="form-area" style="display:none;">
-        <h2>Informações do Álbum</h2>
-
-        <input id="input-album" type="text" placeholder="Nome do Álbum">
-        <input id="input-artista" type="text" placeholder="Nome do Artista">
-
-        <button id="save-info">Salvar Registro</button>
-    </section>
-
-    
-    <section id="lista-registros">
-        <h2>Registros</h2>
-        <ul id="lista"></ul>
-    </section>
-
-    <script src="./js/main.js"></script>
+    <script src="js/main.js" type="module"></script>
 </body>
 </html>
