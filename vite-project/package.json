@@ -6,20 +6,16 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview",
-    "workbox-cacheable-response": "7.0.0",
-    "workbox-expiration": "7.0.0",
-    "workbox-recipes": "7.0.0",
-    "workbox-routing": "7.0.0",
-    "workbox-strategies": "7.0.0",
-    "workbox-streams": "7.0.0"
+    "preview": "vite preview"
   },
   "devDependencies": {
-    "vite": "^7.2.4"
-  },
-  "dependencies": {
+    "idb": "^8.0.3",
+    "vite": "^7.2.4",
+    "workbox-cacheable-response": "^7.4.0",
+    "workbox-expiration": "^7.4.0",
     "workbox-recipes": "^7.4.0",
     "workbox-routing": "^7.4.0",
-    "workbox-strategies": "^7.4.0"
+    "workbox-strategies": "^7.4.0",
+    "workbox-streams": "^7.4.0"
   }
 }

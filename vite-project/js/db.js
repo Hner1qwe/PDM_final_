@@ -1,110 +1,125 @@
-import { openDB } from "https://cdn.jsdelivr.net/npm/idb@7/+esm";
-
+import { openDB } from "idb";
 
 let db;
 
 async function createDB() {
-  db = await openDB("albunsDB", 1, {
-    upgrade(db) {
-      const store = db.createObjectStore("albuns", {
-        keyPath: "id",
-        autoIncrement: true
-      });
-
-      store.createIndex("album", "album");
-      store.createIndex("artista", "artista");
-      store.createIndex("foto", "foto");
-    }
-  });
-
-  console.log("Banco de dados pronto.");
-}
-
-createDB();
-
-
-const cameraView = document.querySelector("#camera--view");
-const cameraOutput = document.querySelector("#camera--output");
-const cameraSensor = document.querySelector("#camera--sensor");
-const cameraTrigger = document.querySelector("#camera--trigger");
-
-
-const formArea = document.querySelector("#form-area");
-const inputAlbum = document.querySelector("#input-album");
-const inputArtista = document.querySelector("#input-artista");
-const saveInfo = document.querySelector("#save-info");
-
-
-const lista = document.querySelector("#lista");
-
-async function cameraStart() {
   try {
-    const stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: "environment" },
-      audio: false
+    db = await openDB('banco', 1, {
+      upgrade(db, oldVersion, newVersion, transaction) {
+        switch (oldVersion) {
+          case 0:
+          case 1:
+            const store = db.createObjectStore('albuns', {
+              keyPath: 'id',
+              autoIncrement: true
+            });
+            store.createIndex('foto', 'foto');
+            store.createIndex('album', 'album');
+            store.createIndex('artista', 'artista');
+        }
+      }
     });
-
-    cameraView.srcObject = stream;
-    cameraView.play();
-  } catch (error) {
-    alert("Erro ao acessar câmera: " + error);
+    console.log("Banco de dados aberto com sucesso!");
+    return db;
+  } catch (e) {
+    alert("Erro ao criar banco de dados: " + e.message)
   }
 }
 
-cameraStart();
+window.addEventListener("DOMContentLoaded", async event => {
+  await createDB();
+  await listarData();
+  document.getElementById("cameraTrigger").addEventListener("click", addData);
+});
 
-
-cameraTrigger.onclick = () => {
-  cameraSensor.width = cameraView.videoWidth;
-  cameraSensor.height = cameraView.videoHeight;
-
-  cameraSensor.getContext("2d").drawImage(cameraView, 0, 0);
-
-  cameraOutput.src = cameraSensor.toDataURL("image/webp");
-  cameraOutput.style.display = "block";
-
-  formArea.style.display = "block";
-};
-
-
-saveInfo.onclick = async () => {
-  const album = inputAlbum.value.trim();
-  const artista = inputArtista.value.trim();
-  const foto = cameraOutput.src;
-
-  if (!album || !artista || !foto) {
-    alert("Preencha tudo antes de salvar!");
+async function listarData() {
+  if (db == undefined) {
+    alert("O banco de dados está fechado.");
     return;
   }
 
-  const data = { album, artista, foto };
+  const registrosSalvos = document.getElementById("registrosSalvos");
+  registrosSalvos.innerHTML = "";
 
-  const tx = db.transaction("albuns", "readwrite");
-  await tx.store.add(data);
-  await tx.done;
+  const tx = db.transaction('albuns', 'readonly');
+  const store = tx.objectStore('albuns');
+  const value = await store.getAll();
 
-  alert("Registro salvo!");
+  if (value.length === 0) {
+    registrosSalvos.innerHTML = "<li>Nenhum registro salvo...</li>";
+    return;
+  }
 
-  inputAlbum.value = "";
-  inputArtista.value = "";
-
-  loadData();
-};
-
-
-async function loadData() {
-  const registros = await db.getAll("albuns");
-  lista.innerHTML = "";
-
-  registros.forEach(item => {
+  value.forEach(a => {
     const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>${item.album}</strong> — ${item.artista}
-      <br>
-      <img src="${item.foto}" style="width:120px; border-radius:10px; margin-top:5px;">
-    `;
-    lista.appendChild(li);
+
+    const img = document.createElement("img");
+    img.src = a.foto;
+    img.width = 100;
+
+    const title = document.createElement("h2");
+    title.textContent = `${a.album}`;
+
+    const artist = document.createElement("h3");
+    artist.textContent = `${a.artista}`;
+
+    const btn = document.createElement("button");
+    btn.textContent = "Excluir";
+    btn.classList.add("btn-excluir");
+    btn.onclick = () => removeData(a.id);
+
+    li.appendChild(title);
+    li.appendChild(artist);
+    li.appendChild(img);
+    li.appendChild(btn);
+
+    registrosSalvos.appendChild(li);
   });
 }
 
-loadData();
+export async function addData(foto) {
+  if (db == undefined) {
+    alert("O banco de dados está fechado.");
+    return;
+  }
+
+  const albumInput = document.getElementById("album");
+  const artistaInput = document.getElementById("artista");
+
+  const albumName = albumInput.value;
+  const albumArtist = artistaInput.value;
+
+  if (!albumName || !albumArtist) {
+    alert("Preencha os campos necessários!");
+    return;
+  }
+
+  const tx = db.transaction('albuns', 'readwrite');
+  const store = tx.objectStore('albuns');
+
+  await store.add({ album: albumName, foto: foto, artista: albumArtist });
+
+  await tx.done;
+
+  albumInput.value = "";
+  artistaInput.value = "";
+
+  albumInput.focus();
+
+  await listarData();
+}
+
+export async function removeData(id) {
+  if (db == undefined) {
+    alert("O banco de dados está fechado.");
+    return;
+  }
+
+  const tx = db.transaction('albuns', 'readwrite');
+  const store = tx.objectStore('albuns');
+
+  await store.delete(id);
+  await tx.done;
+
+  await listarData();
+}

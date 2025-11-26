@@ -1,35 +1,42 @@
 <!DOCTYPE html>
-<html lang="pt">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Registro de Álbuns</title>
+<html lang="pt-BR">
 
-    <link rel="stylesheet" href="./css/style.css">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Registro de Álbuns</title>
+    <meta name="description" content="projeto final">
+    <link rel="apple-touch-icon" href="img/pwa-icon-256.png" />
+    <link rel="stylesheet" href="./css/style.css" />
+    <meta name="theme-color" content="white" />
+    <link rel="manifest" href="manifest.json" />
+    <link rel="icon" href="favicon.ico" />
 </head>
 
-<body>
-    <main id="camera">
-        
-        
-        <input type="text" id="album" placeholder="Nome do Álbum">
-        <input type="text" id="artista" placeholder="Nome do Artista">
+<body class="fullscreen">
+    <main>
+        <div id="container">
+            <div id="camera">
+                <h1>Registro de Álbuns</h1>
 
-        
-        <video id="camera-view" autoplay playsinline></video>
+                <video id="camera-view" autoplay playsinline></video>
 
-       
-        <canvas id="camera-sensor" hidden></canvas>
+                <canvas id="camera-sensor" hidden></canvas>
 
-     
-        <button id="cameraTrigger">Tirar Foto</button>
+                <button id="cameraTrigger">Tirar Foto</button>
 
-        
-        <h2>Registros:</h2>
-        <ul id="lista-registros"></ul>
+                <input type="text" id="album" placeholder="Nome do Álbum">
+                <input type="text" id="artista" placeholder="Nome do Artista">
 
+                <h2>Registros:</h2>
+                <ul id="registrosSalvos"></ul>
+
+            </div>
+        </div>
     </main>
 
+    <script src="js/db.js" type="module"></script>
     <script src="js/main.js" type="module"></script>
 </body>
+
 </html>
