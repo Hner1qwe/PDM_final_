@@ -1,9 +1,5 @@
 import { openDB } from "idb";
 
-function showResult(msg) {
-  console.log(msg);
-}
-
 let db;
 
 async function createDB() {
@@ -23,10 +19,10 @@ async function createDB() {
         }
       }
     });
-    showResult("Banco de dados aberto com sucesso!");
+    console.log("Banco de dados aberto com sucesso!");
     return db;
   } catch (e) {
-    showResult("Erro ao criar banco de dados: " + e.message)
+    alert("Erro ao criar banco de dados: " + e.message)
   }
 }
 
@@ -38,7 +34,7 @@ window.addEventListener("DOMContentLoaded", async event => {
 
 async function listarData() {
   if (db == undefined) {
-    showResult("O banco de dados está fechado.");
+    alert("O banco de dados está fechado.");
     return;
   }
 
@@ -56,14 +52,28 @@ async function listarData() {
 
   value.forEach(a => {
     const li = document.createElement("li");
-    li.textContent = `${a.album} - ${a.artista} - ${a.foto}`;
+
+    const img = document.createElement("img");
+    img.src = a.foto;
+    img.width = 100;
+
+    const title = document.createElement("h2");
+    title.textContent = `${a.album}`;
+
+    const artist = document.createElement("h3");
+    artist.textContent = `${a.artista}`;
+
+    li.appendChild(title);
+    li.appendChild(artist);
+    li.appendChild(img);
+
     registrosSalvos.appendChild(li);
   });
 }
 
-async function addData() {
+export async function addData(foto) {
   if (db == undefined) {
-    showResult("O banco de dados está fechado.");
+    alert("O banco de dados está fechado.");
     return;
   }
 
@@ -74,14 +84,14 @@ async function addData() {
   const albumArtist = artistaInput.value;
 
   if (!albumName || !albumArtist) {
-    showResult("Preencha todos os campos.");
+    alert("Preencha todos os campos.");
     return;
   }
 
   const tx = db.transaction('albuns', 'readwrite');
   const store = tx.objectStore('albuns');
 
-  await store.add({ album: albumName, foto: 'foto', artista: albumArtist });
+  await store.add({ album: albumName, foto: foto, artista: albumArtist });
 
   await tx.done;
 

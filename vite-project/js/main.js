@@ -9,6 +9,8 @@ if ("serviceWorker" in navigator) {
   });
 }
 
+import { addData } from "./db";
+
 window.addEventListener("DOMContentLoaded", () => {
   const constraints = {
     video: { facingMode: { ideal: "environment" } },
@@ -18,10 +20,6 @@ window.addEventListener("DOMContentLoaded", () => {
   const cameraView = document.querySelector("#camera-view");
   const cameraSensor = document.querySelector("#camera-sensor");
   const cameraTrigger = document.querySelector("#cameraTrigger");
-
-  const albumInput = document.querySelector("#album");
-  const artistaInput = document.querySelector("#artista");
-  const listaRegistros = document.querySelector("#lista-registros");
 
   async function cameraStart() {
     try {
@@ -45,15 +43,8 @@ window.addEventListener("DOMContentLoaded", () => {
 
   cameraStart();
 
-  
-  cameraTrigger.addEventListener("click", () => {
-    const album = albumInput.value.trim();
-    const artista = artistaInput.value.trim();
 
-    if (!album || !artista) {
-      alert("Preencha o nome do álbum e do artista!");
-      return;
-    }
+  cameraTrigger.addEventListener("click", async () => {
 
     cameraSensor.width = cameraView.videoWidth;
     cameraSensor.height = cameraView.videoHeight;
@@ -63,21 +54,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
     const foto = cameraSensor.toDataURL("image/webp");
 
-    adicionarRegistro(album, artista, foto);
-
-    albumInput.value = "";
-    artistaInput.value = "";
+    await addData(foto);
   });
-
-  
-  function adicionarRegistro(album, artista, foto) {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      <strong>Álbum:</strong> ${album}<br>
-      <strong>Artista:</strong> ${artista}<br>
-      <img src="${foto}" width="150">
-      <hr>
-    `;
-    listaRegistros.appendChild(li);
-  }
 });
