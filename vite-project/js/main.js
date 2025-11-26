@@ -2,9 +2,9 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", async () => {
     try {
       await navigator.serviceWorker.register("/sw.js", { type: "module" });
-      console.log("Service worker registrado!");
+      console.log("Service worker registrada!");
     } catch (err) {
-      console.error("Falha ao registrar service worker:", err);
+      console.error("Falha ao registrar service worker: ", err);
     }
   });
 }
