@@ -43,7 +43,6 @@ window.addEventListener("DOMContentLoaded", () => {
 
   cameraStart();
 
-
   cameraTrigger.addEventListener("click", async () => {
 
     cameraSensor.width = cameraView.videoWidth;

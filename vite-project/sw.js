@@ -29,7 +29,7 @@ registerRoute(
   pageCache
 );
 registerRoute(
-  ({ request }) => ['style', 'script', 'worker'].includes(request.destination),
+  ({ request }) => ['style', 'script', 'worker', 'image'].includes(request.destination),
   new StaleWhileRevalidate({
     cacheName: 'asset-cache',
     plugins: [

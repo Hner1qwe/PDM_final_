@@ -63,9 +63,15 @@ async function listarData() {
     const artist = document.createElement("h3");
     artist.textContent = `${a.artista}`;
 
+    const btn = document.createElement("button");
+    btn.textContent = "Excluir";
+    btn.classList.add("btn-excluir");
+    btn.onclick = () => removeData(a.id);
+
     li.appendChild(title);
     li.appendChild(artist);
     li.appendChild(img);
+    li.appendChild(btn);
 
     registrosSalvos.appendChild(li);
   });
@@ -84,7 +90,7 @@ export async function addData(foto) {
   const albumArtist = artistaInput.value;
 
   if (!albumName || !albumArtist) {
-    alert("Preencha todos os campos.");
+    alert("Preencha os campos necessários!");
     return;
   }
 
@@ -99,6 +105,21 @@ export async function addData(foto) {
   artistaInput.value = "";
 
   albumInput.focus();
+
+  await listarData();
+}
+
+export async function removeData(id) {
+  if (db == undefined) {
+    alert("O banco de dados está fechado.");
+    return;
+  }
+
+  const tx = db.transaction('albuns', 'readwrite');
+  const store = tx.objectStore('albuns');
+
+  await store.delete(id);
+  await tx.done;
 
   await listarData();
 }
